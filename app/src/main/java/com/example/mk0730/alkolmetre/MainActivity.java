@@ -1,24 +1,26 @@
 package com.example.mk0730.alkolmetre;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ToggleButton;
 
-import com.example.mk0730.alkolmetre.utils.NetworkUtils;
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
+import com.example.mk0730.alkolmetre.base.BaseActivity;
+import com.example.mk0730.alkolmetre.utils.UrlUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     Button beer_button;
     Button sprits_button;
     Button wine_button;
     Button search_detail_button;
 
-    NetworkUtils networkUtils = new NetworkUtils();
+    UrlUtils urlUtils = new UrlUtils();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         });
         sprits_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                buildSearch("sprits");
+                buildSearch("spirits");
             }
         });
         search_detail_button.setOnClickListener(new View.OnClickListener() {
@@ -50,32 +52,18 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 
     public void buildSearch(String category) {
-        String alchoholFilter = networkUtils.setCategory(category).build();
+        String alchoholFilter = urlUtils.setCategory(category).build();
         Intent intent = new Intent(MainActivity.this, AlcoholListActivity.class);
         intent.putExtra(Intent.EXTRA_TEXT, alchoholFilter);
         startActivity(intent);
     }
 
-
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int selectedItemIndexId = item.getItemId();
-        if (selectedItemIndexId == R.id.action_search) {
-            Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
-            startActivity(startSettingsActivity);
-            return true;
-        }
-        // TODO: logout will be implemented in here. else if(selectedItemIndexId = logout)
-        return super.onOptionsItemSelected(item);
+    protected void onDestroy() {
+        super.onDestroy();
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
     }
 }
